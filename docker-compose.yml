@@ -1,0 +1,67 @@
+# Use postgres/example user/password credentials
+version: '3.4'
+
+services:
+
+  db:
+    image: mariadb
+    container_name: Database
+    environment:
+      - MYSQL_ROOT_PASSWORD=passwd
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=passwd
+    networks:
+      - app-int
+    volumes:
+      - wpdb:/var/lib/mysql
+    
+  blog:
+    build: ./blog
+    container_name: main
+    privileged: true
+    depends_on:
+      - db
+    networks:
+      - app-int
+    ports:
+      - "443:443"
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - wspace:/var/www
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ngxcache:/var/cache/ngx_pagespeed
+     
+  ssh:
+    build: ./ssh
+    container_name: WP-ssh
+    privileged: true
+    ports:
+      - "1630:22"
+    volumes:
+     - ./config/authorized_keys:/var/www/.ssh/authorized_keys
+     - /sys/fs/cgroup:/sys/fs/cgroup:ro
+     - wspace:/var/www
+     
+ redis:
+    image: 'bitnami/redis:latest'
+    container_name: seele-redis-server
+    networks:
+      - app-int
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdb:/bitnami/redis/data
+
+networks:
+  app-int:
+    driver: bridge
+
+volumes:
+  wpdb:
+  ngxcache:
+  wspace:
+  redisdb:
+  

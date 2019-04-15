@@ -1,0 +1,19 @@
+from local/c7-systemd
+
+RUN yum update -y
+RUN yum install net-tools -y
+RUN yum install expect -y
+RUN yum install wget -y
+RUN yum install nano -y
+RUN yum -y install openssh-server openssh-clients
+RUN useradd -u 1010 -U -d /var/www wordpress
+RUN chkconfig sshd on
+RUN mkdir /var/www/.ssh
+RUN chown -R wordpress:wordpress /var/www/.ssh
+RUN chmod 700 /var/www/.ssh
+COPY sshd_config /etc/ssh/sshd_config
+EXPOSE 22
+
+
+
+

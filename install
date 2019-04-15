@@ -1,0 +1,5 @@
+#!/bin/sh
+cd centos_sys
+./build
+cd ..
+docker-compose build && docker-compose up -d
